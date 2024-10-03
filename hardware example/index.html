@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simulación de Hardware</title>
+</head>
+<body>
+    <h1>Simulación de Hardware</h1>
+    <div id="status">Conexión: Desconectada</div>
+    <div id="messages"></div>
+    <button id="boton-conectar">Conectar al WebSocket</button>
+    <button id="boton-desconectar">Desconectar</button>
+
+    <script>
+        let ws;
+
+        document.getElementById("boton-conectar").addEventListener('click', function() {
+            if (!ws || ws.readyState === WebSocket.CLOSED) {
+                // Simular hardware conectándose a la ruta ws con ID 2
+                ws = new WebSocket("ws://127.0.0.1:8000/ws/2");
+
+                ws.onopen = function() {
+                    document.getElementById("status").innerText = "Conexión: Conectada";
+                    console.log("Hardware conectado al WebSocket");
+                };
+
+                ws.onmessage = function(event) {
+                    // Mostrar el mensaje que viene desde el servidor (front-end le envía mensaje)
+                    console.log("Mensaje recibido desde el servidor:", event.data);
+                    const messagesDiv = document.getElementById("messages");
+                    const messageElem = document.createElement("p");
+                    messageElem.innerText = `Mensaje recibido: ${event.data}`;
+                    messagesDiv.appendChild(messageElem);
+                };
+
+                ws.onclose = function() {
+                    document.getElementById("status").innerText = "Conexión: Desconectada";
+                    console.log("Conexión WebSocket cerrada");
+                };
+
+                ws.onerror = function(error) {
+                    console.log("Error en WebSocket: ", error);
+                };
+            }
+        });
+
+        document.getElementById("boton-desconectar").addEventListener('click', function() {
+            if (ws && ws.readyState === WebSocket.OPEN) {
+                ws.close();
+                console.log("Hardware desconectado del WebSocket");
+            } else {
+                console.log("WebSocket no está conectado.");
+            }
+        });
+    </script>
+</body>
+</html>
